@@ -2,7 +2,10 @@ package problemsolving.algo;
 
 import org.w3c.dom.NodeList;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ListNode {
     public int val;
@@ -79,6 +82,51 @@ public class ListNode {
         left = a;
         ListNode[] res = {left, right};
         return res;
+    }
+
+    public static ListNode findIntersection(ListNode a, ListNode b) {
+        Set<ListNode> s = new HashSet<>();
+        ListNode curr = a;
+        while (curr != null) {
+            s.add(curr);
+            curr = curr.next;
+        }
+        curr = b;
+        while (curr != null) { //check if object contains in set
+            if (s.contains(curr)) {
+                return curr;
+            }
+            curr = curr.next;
+        }
+        return null; //no intersection
+    }
+
+    public static ListNode findIntersectionV2(ListNode a, ListNode b) {
+
+        ArrayList<ListNode> arrA = new ArrayList<ListNode>();
+        ArrayList<ListNode> arrB = new ArrayList<ListNode>();
+        ListNode curr = a;
+        while (curr != null) {
+            arrA.add(curr);
+            curr = curr.next;
+        }
+        curr = b;
+        while (curr != null) { //check if object contains in set
+            arrB.add(curr);
+            curr = curr.next;
+        }
+
+        int i = arrA.size() - 1;
+        int j = arrB.size() - 1;
+        if (arrA.get(i) != arrB.get(j)) {
+            return null; //different from the start
+        }
+        while (--i >= 0 && --j >= 0) {
+            if (arrA.get(i) != arrB.get(j)) {
+                return arrA.get(i + 1);
+            }
+        }
+        return null;
     }
 
 
