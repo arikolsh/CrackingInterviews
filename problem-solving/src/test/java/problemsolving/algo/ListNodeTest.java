@@ -2,6 +2,11 @@ package problemsolving.algo;
 
 import org.junit.Test;
 
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class ListNodeTest {
     @Test
     public void test() {
@@ -39,5 +44,36 @@ public class ListNodeTest {
         res[1].print();
 
 
+    }
+
+    @Test
+    public void testIntersection(){
+
+        ListNode intersection= new ListNode(20);
+
+        ListNode l1 = new ListNode(1);
+        l1.next=new ListNode(4);
+        l1.next.next=intersection; //intersection
+        l1.next.next.next = new ListNode(100);
+        l1.print();
+        System.out.println();
+
+        ListNode l2 = new ListNode(7);
+        l2.next=new ListNode(3);
+        l2.next.next=new ListNode(15);
+        l2.next.next.next = intersection;
+        l2.print();
+
+        ListNode res = ListNode.findIntersection(l1,l2);
+        assertTrue(intersection==res);
+        System.out.println();
+        res.print();
+
+        ListNode res2 = ListNode.findIntersectionV2(l1,l2);
+        assertTrue(intersection==res2);
+        System.out.println();
+        res2.print(); //Objects that are equal must have the same hash code within a running process
+        //As much as is reasonably practical, the hashCode method defined by class Object does
+        // return distinct integers for distinct objects.
     }
 }

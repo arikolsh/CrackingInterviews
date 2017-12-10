@@ -1,128 +1,93 @@
 package problemsolving.algo;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.*;
 
+/**
+ * Created by ariko on 11/27/2017.
+ */
+@ToString
 public class Graph {
-    private int V;
+    @Getter
+    List<Integer>[] V;
+    @Getter
+    Set<Edge<Integer>> edges;
+    @Getter
+    boolean directed;
 
-    private LinkedList<Integer> adj[];
+    public Graph(int vertices, boolean directed) {
+        V = new ArrayList[vertices + 1];
+        for (int i = 0; i < vertices + 1; i++) {
+            V[i] = new ArrayList<>();
+        }
+        this.directed = directed;
+        edges = new HashSet<>();
+    }
 
-    public Graph(int V) {
-        this.V = V;
-        adj = new LinkedList[V];
-        for (int i = 0; i < V; i++) {
-            adj[i] = new LinkedList<>();
+    public List<Integer> getAdj(int u){
+        return V[u];
+    }
+
+    public Graph add(int u, int v) {
+        assert (u <= V.length && v <= V.length && u > 0 && v > 0);
+        Edge<Integer> e1 = new Edge<>(u, v);
+        if (!edges.contains(e1)) {
+            edges.add(e1);
+            V[u].add(v);
+        }
+        if (!directed) {
+            this.add(v, u);
+        }
+        return this;
+    }
+
+    public Graph remove(int u, int v) {
+        assert (u <= V.length && v <= V.length && u > 0 && v > 0);
+        V[u].remove(V[u].indexOf(v));
+        if (!directed) {
+            this.remove(v, u);
+        }
+        return this;
+    }
+
+    public ArrayList<Integer> findRoute(Integer start, Integer end) {
+        Map<Integer, Integer> parentMap = findDFS(start);
+        ArrayList<Integer> route = new ArrayList<>();
+        route.add(end);
+        Integer curr = end;
+        Integer parent;
+        while (true) { //backtrack
+            parent = parentMap.get(curr);
+            if (parent == null) {
+                return null;
+            }
+            route.add(parent);
+            if (parent.equals(start)) {
+                Collections.reverse(route);
+                return route;
+            }
+            curr = parent;
         }
     }
 
-    public void addEdge(int v, int u) {
-        adj[v].add(u);
+    public Map<Integer, Integer> findDFS(Integer start) {
+        Map<Integer, Integer> parentMap = new HashMap<>();
+        findDFSUtil(start, new boolean[V.length], parentMap);
+        return parentMap;
     }
 
-    public void DFS(int v) {
-        System.out.println();
-        boolean visited[] = new boolean[V];
-        DFSUtil(v, visited);
-        System.out.print("|");
-    }
-
-    private void DFSUtil(int v, boolean[] visited) {
-        visited[v] = true;
-        System.out.print(v + "->");
-        for (Integer child : adj[v]) {
-            if (!visited[child]) {
-                DFSUtil(child, visited);
+    private void findDFSUtil(Integer start, boolean[] visited, Map<Integer, Integer> parentMap) {
+        visited[start] = true;
+        int j = 0;
+        //System.out.println(start);
+        for (Integer v : V[start]) { //for each adjacent v
+            if (!visited[v]) {
+                parentMap.put(v, start);
+                findDFSUtil(v, visited, parentMap);
             }
         }
-
     }
-
-    public ArrayList<Integer> DFSIter(int v) {
-        boolean[] visited = new boolean[V];
-        ArrayList<Integer> res = new ArrayList<>();
-        //create a stack for DFS
-        Stack<Integer> stack = new Stack<>();
-        Integer curr;
-        stack.push(v);
-        while (!stack.isEmpty()) {
-            //pop a vertex from stack
-            curr = stack.pop();
-            if (!visited[curr]) {
-                res.add(curr);
-                visited[curr] = true;
-            }
-            //get all adjacent vertices of popped
-            //vertex
-            for (Integer child : adj[curr]) {
-                if (!visited[child]) {
-                    stack.push(child);
-                }
-            }
-        }
-        System.out.println();
-        res.forEach(x -> System.out.print(x + "->"));
-        System.out.print("|");
-        return res;
-    }
-
-    public Boolean hasFullCircle() { //dfs with a twist
-        for (int v = 0; v < V; v++) {
-            if (hasFullCircleUtil(v)) {
-                DFSIter(v);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasFullCircleUtil(int v) { //todo!!!
-
-        boolean[] visited = new boolean[V];
-        boolean[] inStack = new boolean[V];
-        ArrayList<Integer> res = new ArrayList<>();
-        //create a stack for DFS
-        Stack<Integer> stack = new Stack<>();
-        Integer curr;
-        stack.push(v);
-        inStack[v] = true;
-        while (!stack.isEmpty()) {
-            //pop a vertex from stack
-            curr = stack.pop();
-            inStack[curr] = false;
-            if (!visited[curr]) {
-                res.add(curr);
-                visited[curr] = true;
-            }
-            //get all adjacent vertices of popped
-            //vertex
-            for (Integer child : adj[curr]) {
-                if (!visited[child] && !inStack[child]) {
-                    stack.push(child);
-                    inStack[child] = true;
-                    if (child.equals(v) && allTrueExcept(inStack, child)) return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    private boolean allTrueExcept(boolean[] inStack, Integer e) {
-        if (inStack[e] == true) return false;
-        for (int i = 0; i < inStack.length; i++) {
-            boolean b = inStack[i];
-            if (!b) {
-                if (e.equals(i)) continue;
-                return false;
-            }
-        }
-        return true;
-    }
-
 
 }
